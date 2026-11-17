@@ -1,39 +1,72 @@
-# CLAUDE.md — Pharmacy Management & E-Commerce
+# CLAUDE.md
+# Panduan Pengembangan Website Apotek
 
-Dokumen ini adalah panduan utama untuk Claude Code ketika mengembangkan repository website apotek ini. Baca file ini dan periksa kode aktual sebelum melakukan perubahan.
+Dokumen ini adalah pedoman utama untuk Claude Code atau AI coding assistant saat membaca, memperbaiki, dan mengembangkan repository ini. Tujuannya adalah menghasilkan website apotek yang **profesional, mudah digunakan masyarakat umum, aman, konsisten, dan benar-benar berfungsi**.
 
-## 1. Identitas dan tujuan project
+> Aturan paling penting: pahami kondisi kode yang sudah ada sebelum mengubahnya. Jangan mengarang fitur, jangan mengganti arah project, dan jangan melakukan perubahan besar tanpa persetujuan.
 
-Project ini adalah website apotek berbasis Laravel yang dikembangkan dari aplikasi pembelajaran CRUD menjadi aplikasi yang lebih matang: **Modern Pharmacy Management & E-Commerce Website**.
+---
 
-Tujuan pengembangan:
-- Menghasilkan UI/UX modern, profesional, konsisten, responsif, dan mudah digunakan.
-- Menyempurnakan fitur manajemen obat dan kategori.
-- Memisahkan pengalaman admin dan pelanggan.
-- Menambahkan fitur katalog, pencarian, filter, dan keranjang belanja secara bertahap.
-- Menjaga kode tetap sederhana, mudah dibaca, aman, dan mudah dipelihara.
+## 1. Identitas dan tujuan produk
 
-Jangan menganggap semua fitur yang disebut sebagai fitur yang sudah ada. Implementasikan secara bertahap dan tandai fitur yang belum selesai.
+Project ini adalah **website apotek** berbasis Laravel. Arah produk adalah website yang dapat digunakan oleh dua kelompok pengguna:
 
-## 2. Stack teknologi yang terdeteksi
+1. **Pelanggan / masyarakat umum** — mencari informasi produk, menjelajahi katalog, melihat detail produk, dan menggunakan fitur belanja jika fitur tersebut sudah tersedia.
+2. **Admin / pengelola apotek** — mengelola data obat, kategori, dan operasional katalog melalui area admin.
 
-Pertahankan stack yang sudah ada kecuali ada alasan teknis kuat dan persetujuan pengguna:
-- PHP 8.3+
-- Laravel 13 (`composer.json` saat analisis menggunakan `laravel/framework: ^13.8`)
-- Blade templating
-- MySQL (pastikan konfigurasi aktual melalui `.env`, jangan pernah membaca atau menampilkan rahasia `.env`)
-- Tailwind CSS 4 melalui `@tailwindcss/vite`
+Website harus terasa seperti layanan apotek sungguhan, bukan sekadar tugas CRUD atau template dashboard.
+
+### Hasil yang ingin dicapai
+
+- Tampilan modern, bersih, terpercaya, dan mudah dipahami.
+- Pengalaman pelanggan sederhana, termasuk bagi pengguna yang tidak terbiasa dengan teknologi.
+- Navigasi yang jelas antara halaman publik dan halaman admin.
+- Informasi produk tersusun rapi dan mudah ditemukan.
+- Tampilan responsif pada ponsel, tablet, dan desktop.
+- Formulir, tombol, pencarian, filter, dan navigasi bekerja sesuai fungsinya.
+- Data yang ditampilkan berasal dari database, bukan angka atau konten palsu.
+- Kode Laravel tetap mudah dirawat dan dikembangkan.
+
+### Bukan tujuan project
+
+Jangan mengubah project menjadi:
+- Sistem rumah sakit, klinik, rekam medis, atau konsultasi dokter.
+- Marketplace multi-penjual.
+- Sistem pembayaran atau pengiriman sungguhan tanpa permintaan dan integrasi yang jelas.
+- Aplikasi berbasis React/Vue atau framework lain.
+- Sistem rekomendasi diagnosis, resep, atau dosis obat otomatis.
+
+Fitur baru di luar arah website apotek harus dibahas terlebih dahulu dengan pengguna.
+
+---
+
+## 2. Teknologi dan batasan teknis
+
+Ikuti teknologi yang sudah digunakan repository. Berdasarkan pemeriksaan awal:
+
+- PHP `^8.3`
+- Laravel `^13.8`
+- Blade
+- MySQL (konfigurasi aktual mengikuti environment)
+- Tailwind CSS 4 melalui Vite
 - Vite 8
-- JavaScript native / ES modules
-- SweetAlert2 sudah digunakan melalui CDN di beberapa halaman.
+- JavaScript native / ES Modules
+- SweetAlert2 digunakan pada beberapa halaman melalui CDN
 
-Jangan migrasi ke React, Vue, Inertia, Livewire, Bootstrap, atau framework CSS lain tanpa persetujuan. Jangan memasang dependency hanya untuk hal yang dapat diselesaikan dengan stack yang sudah ada.
+### Aturan stack
 
-Tidak menggunakan Laravel Breeze saat ini. Jangan menginstal Breeze atau mengganti autentikasi manual secara otomatis.
+- Pertahankan Laravel + Blade + Tailwind CSS + Vite.
+- Jangan migrasi ke Bootstrap, React, Vue, Livewire, Inertia, atau framework lain tanpa persetujuan.
+- Jangan memasang package baru jika kebutuhan dapat diselesaikan dengan teknologi yang sudah tersedia.
+- Periksa `composer.json`, `package.json`, dan kode aktual sebelum menyimpulkan teknologi yang terpasang.
+- Jangan mengasumsikan CDN selalu tersedia. Jika project sudah memiliki dependency lokal, prioritaskan asset lokal.
+- Jangan menghapus dependency atau konfigurasi yang masih digunakan.
 
-## 3. Kondisi repository saat ini
+---
 
-Struktur penting yang sudah ditemukan:
+## 3. Peta repository dan kondisi awal
+
+Struktur penting yang telah ditemukan:
 
 ```text
 app/
@@ -47,12 +80,15 @@ app/
     Medicine.php
     Obat.php
     User.php
+
 database/
   migrations/
-    create_users_table
-    create_obats_table
-    create_categories_table
-    create_medicines_table
+  seeders/
+
+public/
+  gambars/
+  images/
+
 resources/
   css/app.css
   js/app.js
@@ -62,361 +98,426 @@ resources/
     components/
     medicine/
     index.blade.php
-routes/web.php
-public/gambars/
+    about.blade.php
+
+routes/
+  web.php
 ```
 
-Model dan relasi yang terdeteksi:
-- `Category` memiliki banyak `Medicine` melalui `medicines()`.
-- `Medicine` dimiliki satu `Category` melalui `category()`.
+### Model dan relasi yang telah teridentifikasi
+
+- `Category` memiliki banyak `Medicine` melalui relasi `medicines()`.
+- `Medicine` dimiliki satu `Category` melalui relasi `category()`.
 - `User` memiliki atribut `name`, `email`, `password`, dan `role`.
-- Tabel `medicines` memiliki `name`, `price`, `description`, `expired`, `medicine_image`, `category_id`, dan timestamps.
-- Tabel `categories` memiliki `name`, `description`, dan timestamps.
-- Tabel `users` memiliki `role` dengan default `user`.
+- Data `Medicine` menggunakan atribut `name`, `price`, `description`, `expired`, `medicine_image`, dan `category_id`.
+- Terdapat model `Obat` dan tabel `obats` yang terpisah dari `Medicine` dan `medicines`.
 
-Controller yang ada:
-- `AuthController`: register, login, logout.
-- `MedicineController`: index, create, store, show, edit, update, destroy.
-- `CategoryController`: index, create, store, destroy.
-- `FirstController`: halaman publik dan about.
+**Penting:** keberadaan model/tabel `Obat` dan `Medicine` tidak boleh dianggap duplikat yang aman dihapus. Telusuri pemakaiannya terlebih dahulu. Jangan menggabungkan, menghapus, atau memigrasikan data keduanya tanpa persetujuan.
 
-View yang ada:
-- `index.blade.php` untuk halaman depan/katalog.
-- `medicine/medicine.blade.php` untuk daftar obat.
-- `medicine/create.blade.php`, `edit.blade.php`, `detail.blade.php`.
-- `category/index.blade.php`, `category/create.blade.php`.
-- `auth/login.blade.php`, `auth/register.blade.php`.
-- Komponen navbar dan footer.
+### Kondisi awal yang perlu diaudit
 
-Catatan: ada model `Obat` dan tabel `obats` yang terpisah dari model `Medicine` dan tabel `medicines`. Jangan menggabungkan, menghapus, atau melakukan migrasi destruktif tanpa memeriksa pemakaian dan meminta persetujuan.
+Pemeriksaan awal menemukan beberapa hal yang harus diperiksa dan ditangani bertahap:
 
-## 4. Aturan kerja wajib
+- Route manajemen obat saat ini berada di middleware `auth`, tetapi belum terlihat pembatasan khusus role admin.
+- Route hapus obat menggunakan HTTP GET. Aksi penghapusan harus dipindahkan ke HTTP DELETE setelah memeriksa seluruh pemanggilnya.
+- Controller obat belum menerapkan validasi lengkap dan upload gambar masih menggunakan nama file asli.
+- Penghapusan kategori saat ini ikut menghapus seluruh obat terkait. Perilaku ini berisiko kehilangan data dan tidak boleh dipertahankan tanpa kebijakan bisnis yang disetujui.
+- Beberapa daftar data menggunakan `all()` dan perlu dievaluasi untuk pagination serta eager loading.
+- Halaman publik masih memiliki konten placeholder dan tautan yang belum memiliki tujuan nyata.
+- Periksa apakah detail produk publik memang dapat dibuka oleh pelanggan tanpa login.
+- Periksa proses logout, validasi, session, dan otorisasi.
 
-Sebelum coding:
-1. Baca `CLAUDE.md` ini.
-2. Periksa file terkait dan pahami alur route → controller → model → view.
-3. Periksa versi dependency dan konvensi yang sudah dipakai.
-4. Identifikasi dampak perubahan pada database dan fitur lain.
-5. Buat rencana singkat untuk pekerjaan yang cukup besar.
+Daftar ini adalah temuan awal, bukan izin untuk mengubah semuanya sekaligus. Verifikasi kembali kondisi file sebelum bertindak.
 
-Saat coding:
-- Utamakan perubahan kecil, terarah, dan konsisten dengan struktur Laravel.
-- Jangan menimpa file yang tidak terkait.
-- Jangan menghapus fitur yang sudah berjalan tanpa alasan dan persetujuan.
-- Jangan membuat data dummy permanen di controller.
-- Jangan menulis query database langsung di Blade.
-- Gunakan route bernama (`route('...')`) dan helper Laravel, bukan URL hardcoded jika memungkinkan.
-- Gunakan Eloquent relationship dan eager loading untuk mencegah N+1 query.
-- Gunakan Form Request jika validasi sudah cukup kompleks; untuk validasi sederhana boleh memakai `$request->validate()`.
-- Gunakan mass assignment secara aman dan periksa `$fillable` model.
-- Tampilkan error validasi dekat field terkait.
-- Gunakan `old()` agar input tidak hilang setelah validasi gagal.
-- Gunakan `@csrf` pada semua form yang mengubah data.
-- Gunakan method spoofing `@method('PUT')`, `@method('PATCH')`, dan `@method('DELETE')` sesuai route.
-- Gunakan pagination untuk daftar data.
-- Berikan empty state ketika data kosong.
-- Pastikan semua tombol dan tautan memiliki aksi nyata. Jangan membuat tombol dekoratif seolah-olah fitur sudah bekerja.
-- Jangan menggunakan `@php` berlebihan untuk logika bisnis.
-- Jangan menaruh seluruh JavaScript dalam satu file Blade jika lebih tepat diletakkan di `resources/js`.
-- Jangan menggunakan `any`-style improvisasi atau kode abstrak berlebihan. Pilih solusi yang mudah dipahami developer Laravel tingkat pemula-menengah.
+---
 
-Setelah coding:
-1. Periksa seluruh file yang berubah.
-2. Jalankan test yang relevan (`php artisan test`).
-3. Jalankan `npm run build` jika asset frontend berubah.
-4. Jalankan pemeriksaan route (`php artisan route:list`) bila routing berubah.
-5. Laporkan test yang berhasil/gagal dan hal yang belum dapat diverifikasi.
-6. Jangan mengklaim fitur berhasil jika belum diuji.
+## 4. Prinsip produk: utamakan pelanggan
 
-## 5. Arah desain UI/UX
+Setiap perubahan halaman publik harus menjawab pertanyaan: **apakah pelanggan apotek dapat memahami dan menggunakan halaman ini dengan mudah?**
 
-Buat desain dengan karakter:
-- Modern, bersih, terpercaya, dan profesional.
-- Cocok untuk brand apotek/farmasi.
-- Tidak terlihat seperti template admin generik.
-- Mengutamakan keterbacaan, hierarki informasi, dan kemudahan penggunaan.
-- Konsisten pada desktop, tablet, dan mobile.
+### Prinsip UX
 
-Arah visual:
-- Gunakan warna utama emerald/teal atau hijau farmasi yang elegan.
-- Gunakan warna netral untuk latar dan permukaan.
-- Gunakan warna status secara konsisten: success, warning, danger, info.
-- Hindari terlalu banyak gradient, shadow tebal, border berlebihan, dan animasi yang mengganggu.
-- Gunakan spacing, radius, ukuran font, dan komponen yang konsisten.
-- Gunakan ikon yang konsisten. Jika memakai library ikon baru, minta persetujuan terlebih dahulu; alternatifnya gunakan SVG inline sederhana.
-- Pastikan kontras teks memadai dan fokus keyboard terlihat.
+- Gunakan bahasa Indonesia yang jelas, sopan, dan tidak teknis.
+- Hindari istilah developer pada antarmuka pelanggan.
+- Prioritaskan tampilan mobile karena pelanggan mungkin mengakses melalui ponsel.
+- Buat hierarki visual yang jelas: judul, informasi utama, harga, kategori, dan aksi.
+- Jangan memenuhi halaman dengan animasi, dekorasi, atau card yang tidak membantu.
+- Gunakan ukuran teks yang nyaman dibaca dan kontras yang memadai.
+- Berikan feedback ketika aksi berhasil, gagal, sedang diproses, atau belum memiliki data.
+- Jangan membuat tombol yang terlihat aktif tetapi tidak melakukan apa pun.
+- Jangan menggunakan tautan `#` sebagai tujuan akhir fitur.
+- Sediakan empty state yang menjelaskan kondisi dan langkah berikutnya.
+- Pastikan formulir mudah digunakan, memiliki label, dan menampilkan pesan kesalahan yang jelas.
 
-Komponen UI yang perlu distandarkan:
-- Navbar publik.
-- Sidebar/dashboard navigation untuk admin.
+### Pengalaman pelanggan yang diharapkan
+
+Jika sesuai dengan tahap pengembangan dan data yang tersedia, halaman publik dapat mencakup:
+
+- Beranda dengan identitas apotek, penjelasan layanan, dan akses katalog.
+- Katalog produk dengan foto, nama, harga, dan kategori.
+- Pencarian produk.
+- Filter kategori dan pengurutan.
+- Halaman detail produk.
+- Informasi kontak, alamat, jam operasional, dan lokasi apotek jika datanya diberikan pemilik.
+- Keranjang dan pemesanan hanya setelah diminta serta dirancang alurnya dengan jelas.
+
+Jangan mengarang nama apotek, alamat, nomor telepon, jam buka, diskon, sertifikasi, stok, testimoni, atau klaim layanan. Gunakan data yang sudah ada atau minta informasi yang belum tersedia.
+
+---
+
+## 5. Arah desain visual
+
+Gunakan karakter visual **modern, bersih, ramah, dan terpercaya** yang sesuai dengan bisnis apotek.
+
+### Panduan visual
+
+- Warna utama dapat menggunakan emerald, teal, atau hijau farmasi yang elegan.
+- Gunakan latar netral dan permukaan putih/terang agar informasi mudah dibaca.
+- Gunakan warna status secara konsisten untuk sukses, peringatan, bahaya, dan informasi.
+- Gunakan tipografi yang mudah dibaca.
+- Gunakan spacing dan radius yang konsisten.
+- Shadow secukupnya; hindari bayangan tebal dan border berlebihan.
+- Hindari gradient berlebihan, efek kaca yang mengganggu, dan animasi berlebihan.
+- Gunakan ikon dengan gaya konsisten.
+- Jangan menambahkan library ikon baru tanpa alasan dan persetujuan.
+- Pastikan hover, focus, active, disabled, dan loading state terlihat jelas.
+
+### Komponen yang perlu konsisten
+
+- Navbar publik dan navigasi mobile.
 - Footer.
-- Page header dan breadcrumb.
-- Button primary, secondary, danger, dan ghost.
-- Input, select, textarea, label, dan pesan error.
-- Card, badge status, table, modal/confirmation, alert, dan pagination.
-- Loading state, empty state, dan error state.
+- Hero section.
+- Tombol primary, secondary, danger, dan ghost.
+- Form input, select, textarea, label, dan error message.
+- Product card dan product detail.
+- Badge kategori/status.
+- Table dan pagination admin.
+- Sidebar admin.
+- Modal/confirmation dan alert.
+- Loading, empty, success, dan error state.
 
-Gunakan Blade layout dan reusable components:
-- Buat layout publik, misalnya `resources/views/layouts/app.blade.php`.
-- Buat layout dashboard/admin terpisah bila diperlukan.
-- Gunakan `@extends`, `@section`, `@yield`, dan Blade components secara konsisten.
-- Hindari duplikasi struktur HTML head, navbar, footer, dan asset Vite di banyak halaman.
-- Pastikan menu mobile benar-benar bisa dibuka dan ditutup.
+### Aturan implementasi UI
 
-Jangan melakukan redesign dengan mengubah semua halaman sekaligus. Selesaikan satu area, verifikasi, lalu lanjutkan.
+- Gunakan layout Blade untuk menghindari duplikasi HTML.
+- Pertimbangkan layout publik dan layout admin secara terpisah.
+- Gunakan Blade components untuk elemen yang berulang.
+- Jangan melakukan redesign seluruh halaman sekaligus.
+- Selesaikan satu halaman atau satu alur, lalu periksa hasilnya di ukuran mobile dan desktop.
+- Jangan mengubah desain halaman yang tidak terkait dengan permintaan pengguna.
 
-## 6. Peta fitur dan prioritas pengembangan
+---
 
-### Prioritas 0 — Stabilitas dan keamanan fondasi
+## 6. Peta fitur dan urutan prioritas
 
-Sebelum menambahkan fitur besar:
-- Audit seluruh route dan middleware.
-- Pastikan halaman admin tidak dapat diakses user biasa.
-- Periksa proses register agar user publik tidak bisa memilih role admin.
-- Perbaiki validasi register, login, obat, dan kategori.
-- Pastikan login melakukan session regeneration.
-- Pastikan logout mengakhiri session dan regenerate CSRF token sesuai praktik Laravel.
-- Gunakan route name dan HTTP method yang tepat.
-- Ganti penghapusan data melalui GET menjadi DELETE.
-- Tangani data tidak ditemukan dengan `findOrFail()`.
-- Periksa file upload: validasi MIME/type, ukuran, dan nama file.
-- Simpan gambar melalui Laravel Storage, bukan memindahkan file langsung ke folder publik dengan nama asli.
-- Saat gambar diganti atau data dihapus, tangani file lama dengan aman.
-- Jangan menghapus semua obat ketika kategori dihapus secara diam-diam. Tampilkan pesan bahwa kategori masih dipakai, atau gunakan kebijakan relasi yang disetujui. Jangan mengubah foreign key atau menghapus data secara massal tanpa persetujuan.
-- Jangan menampilkan exception, SQL, atau informasi sensitif kepada pengguna.
+Kembangkan aplikasi secara bertahap. Jangan melompat ke fitur lanjutan ketika fondasi masih bermasalah.
 
-### Prioritas 1 — Fondasi UI dan halaman publik
+### Tahap 0 — Audit dan stabilitas
 
-Buat pengalaman publik yang rapi:
-- Homepage dengan hero section yang jelas.
-- Katalog obat dengan card konsisten.
-- Kategori obat.
-- Detail obat yang informatif.
-- Pencarian nama obat.
-- Filter berdasarkan kategori.
-- Sorting harga/nama bila relevan.
-- Pagination.
-- Empty state dan gambar fallback ketika foto tidak tersedia.
-- Format harga Rupiah.
-- Format tanggal kedaluwarsa yang mudah dibaca.
-- Navbar responsif dengan status login yang jelas.
+- Petakan route, middleware, controller, model, migration, dan view.
+- Periksa halaman yang dapat dibuka guest, user login, dan admin.
+- Periksa error Laravel dan asset build.
+- Identifikasi link, tombol, atau form yang belum berfungsi.
+- Catat risiko keamanan dan risiko kehilangan data.
+- Buat laporan dan rencana perubahan sebelum mengedit banyak file.
 
-Halaman publik jangan menampilkan tombol admin seperti edit, hapus, atau tambah obat.
+### Tahap 1 — Keamanan dan hak akses
 
-### Prioritas 2 — Dashboard admin
+- Bedakan akses pelanggan dan admin.
+- Pelanggan tidak boleh mengakses halaman pengelolaan data.
+- Semua aksi admin harus dilindungi di sisi server, bukan hanya menyembunyikan tombol.
+- Registrasi publik hanya membuat role pelanggan/user.
+- Role admin tidak boleh dipilih dari form registrasi publik.
+- Periksa proses login dan logout.
+- Gunakan validasi server-side pada seluruh input.
+- Lindungi seluruh form perubahan data dengan CSRF.
+- Aksi hapus harus menggunakan HTTP DELETE atau mekanisme yang sesuai, bukan GET.
+- Jangan menjalankan perubahan database destruktif.
 
-Buat dashboard admin dengan:
-- Sidebar responsif.
-- Ringkasan jumlah obat.
-- Ringkasan jumlah kategori.
-- Informasi obat yang mendekati tanggal kedaluwarsa.
-- Daftar obat terbaru.
-- Navigasi manajemen obat dan kategori.
-- Tabel yang rapi, responsif, dan mudah dipindai.
-- Search, filter, pagination.
-- Confirmation dialog sebelum penghapusan.
+### Tahap 2 — Fondasi tampilan dan halaman publik
 
-Statistik harus berasal dari database sebenarnya, bukan angka hardcoded.
+- Rapikan layout publik.
+- Rapikan navbar dan footer.
+- Buat beranda dengan konten yang benar-benar relevan.
+- Pastikan katalog dapat dibuka pelanggan.
+- Rapikan card produk dan halaman detail.
+- Tambahkan fallback jika gambar produk tidak tersedia.
+- Gunakan format harga Rupiah.
+- Tampilkan informasi produk secara jelas dan konsisten.
+- Tambahkan pencarian, filter, sorting, dan pagination sesuai kebutuhan.
 
-### Prioritas 3 — Manajemen obat dan kategori
+### Tahap 3 — Dashboard admin
 
-Lengkapi CRUD:
-- Create, read, update, delete obat.
-- Create, read, update, delete kategori.
-- Form dengan label yang jelas.
-- Gunakan nama input deskriptif: `name`, `description`, `price`, `expired`, `category_id`, `medicine_image`.
-- Validasi server-side.
-- Preview gambar sebelum upload bila sesuai.
-- Pertahankan gambar lama jika user tidak mengunggah gambar baru saat edit.
-- Tampilkan kategori melalui relasi `category`.
-- Tangani kategori yang masih digunakan oleh obat.
-- Gunakan pagination dan eager loading.
+- Buat dashboard yang mudah dipahami pengelola.
+- Tampilkan ringkasan data dari database sebenarnya.
+- Tampilkan navigasi manajemen obat dan kategori.
+- Buat tabel responsif, pencarian, filter, dan pagination bila dibutuhkan.
+- Berikan konfirmasi sebelum penghapusan.
+- Jangan menampilkan statistik hardcoded seolah-olah data asli.
 
-Pertimbangkan penggunaan route resource setelah memeriksa route yang ada dan menjaga kompatibilitas link/form lama.
+### Tahap 4 — Manajemen produk dan kategori
 
-### Prioritas 4 — Role dan akses pengguna
+- CRUD obat/produk.
+- CRUD kategori.
+- Validasi nama, harga, deskripsi, tanggal kedaluwarsa, kategori, dan gambar sesuai kebutuhan.
+- Gunakan `findOrFail()` atau route model binding.
+- Gunakan Eloquent relationship.
+- Gunakan eager loading untuk menghindari N+1 query.
+- Gunakan pagination pada daftar panjang.
+- Tangani kategori yang masih digunakan produk dengan aman.
+- Jangan menghapus produk terkait secara otomatis ketika kategori dihapus tanpa persetujuan dan kebijakan yang jelas.
 
-Saat ini tabel users memiliki `role` default `user`. Kembangkan otorisasi secara aman:
-- `admin`: mengelola obat, kategori, dan dashboard.
-- `user`: menjelajahi katalog dan detail obat.
-- Role tidak boleh ditentukan dari form register publik.
-- Jangan hanya menyembunyikan tombol di frontend; semua otorisasi wajib diperiksa di server.
-- Implementasikan middleware/authorization policy yang sesuai dengan versi Laravel project.
-- Jangan mengubah akun atau role database secara massal.
+### Tahap 5 — Fitur belanja (opsional, hanya jika diminta)
 
-Bila belum ada admin, jelaskan cara membuat admin secara aman melalui seeder lokal atau perintah yang terkontrol. Jangan menyediakan registrasi admin publik.
+Rancang dan implementasikan bertahap:
 
-### Prioritas 5 — Keranjang belanja (hanya setelah fondasi stabil)
+1. Keranjang belanja.
+2. Tambah, ubah jumlah, dan hapus item.
+3. Ringkasan belanja.
+4. Alur checkout.
+5. Konfirmasi pesanan.
+6. Riwayat pesanan.
 
-Jika pengguna meminta fitur e-commerce, implementasikan bertahap:
-- Add to cart.
-- Update quantity.
-- Remove item.
-- Cart summary.
-- Validasi jumlah dan ketersediaan item di server.
-- Harga dihitung dari database, bukan dipercaya dari request browser.
-- Keranjang harus memiliki perilaku yang jelas untuk guest dan user login.
-- Jangan membuat checkout/pembayaran palsu.
-- Jangan menyatakan transaksi berhasil tanpa integrasi pembayaran dan verifikasi server.
+Ketentuan:
+- Harga dan total wajib dihitung ulang di server berdasarkan database.
+- Jangan percaya harga atau total dari browser.
+- Validasi ketersediaan produk di server.
+- Jelaskan apakah keranjang tersedia untuk guest, pelanggan login, atau keduanya.
+- Jangan membuat checkout palsu.
+- Jangan menyatakan pembayaran berhasil tanpa integrasi dan verifikasi pembayaran yang nyata.
 
-### Prioritas 6 — Fitur lanjutan opsional
+### Tahap 6 — Fitur lanjutan (opsional)
 
-Jangan implementasikan otomatis. Tunggu permintaan pengguna:
-- Riwayat pesanan.
-- Checkout.
-- Payment gateway.
-- Manajemen stok/inventory.
+Jangan implementasikan otomatis. Tunggu instruksi pengguna:
+- Manajemen stok.
 - Notifikasi stok menipis.
 - Laporan penjualan.
 - Export PDF/Excel.
-- Audit log.
+- Email/WhatsApp notification.
+- Payment gateway.
+- Integrasi kurir.
 - API.
-- Email notification.
+- Audit log.
 
-Untuk aplikasi farmasi, jangan membuat klaim medis atau rekomendasi dosis otomatis. Informasi obat harus bersumber dari data yang dimasukkan dan diverifikasi pengelola apotek.
+---
 
-## 7. Standar backend Laravel
+## 7. Aturan khusus informasi farmasi
+
+Website ini adalah sarana informasi dan pengelolaan produk apotek, bukan pengganti tenaga kesehatan.
+
+- Jangan membuat diagnosis atau menyarankan obat berdasarkan gejala.
+- Jangan membuat rekomendasi dosis, aturan pakai, atau kombinasi obat otomatis.
+- Jangan mengarang indikasi, kontraindikasi, efek samping, komposisi, izin edar, atau klaim khasiat.
+- Jangan mengubah informasi pada kemasan atau sumber resmi menjadi klaim yang tidak didukung.
+- Informasi produk harus berasal dari data yang diberikan dan diverifikasi pengelola apotek atau sumber resmi yang sesuai.
+- Jangan menyatakan produk tersedia jika stok belum dikelola atau datanya tidak tersedia.
+- Jangan menampilkan label “aman untuk semua orang”, “pasti sembuh”, atau klaim medis mutlak.
+- Untuk informasi yang memerlukan penilaian medis, arahkan pelanggan berkonsultasi dengan apoteker atau tenaga kesehatan yang berwenang.
+- Jika kelak ada fitur penjualan obat dengan ketentuan khusus, minta pemilik menentukan kebijakan dan pastikan alur mematuhi peraturan yang berlaku. Jangan mengasumsikan semua produk dapat dijual bebas.
+
+---
+
+## 8. Standar backend Laravel
 
 ### Routing
-- Gunakan nama route yang konsisten, misalnya `medicines.index`, `medicines.create`, `medicines.store`, `medicines.show`, `medicines.edit`, `medicines.update`, `medicines.destroy`.
+
+- Gunakan nama route yang konsisten.
 - Kelompokkan route berdasarkan middleware dan prefix.
-- Route publik hanya untuk fitur yang memang boleh diakses publik.
-- Route admin harus dilindungi autentikasi dan otorisasi.
-- Jangan menggunakan GET untuk aksi yang mengubah data.
+- Pisahkan route publik, pelanggan, dan admin sesuai kebutuhan.
+- Gunakan HTTP method sesuai aksi.
+- Jangan menggunakan GET untuk mengubah atau menghapus data.
+- Periksa semua pemanggil route sebelum mengganti URI atau nama route agar tidak merusak tautan yang sudah ada.
 
 ### Controller
-- Controller fokus mengatur alur request.
+
+- Controller mengatur alur request, bukan menampung seluruh logika aplikasi.
 - Validasi request sebelum menyimpan.
 - Gunakan `findOrFail()` atau route model binding.
-- Gunakan redirect dengan flash message yang konsisten.
-- Hindari mengulang logika yang sama di beberapa controller.
-- Jangan menaruh logika tampilan atau query kompleks di controller jika dapat dibuat lebih rapi.
+- Gunakan redirect dan flash message yang konsisten.
+- Hindari query atau logika bisnis kompleks di Blade.
+- Gunakan Form Request jika validasi mulai kompleks.
+- Jangan memasukkan data dummy permanen ke controller.
 
 ### Model dan database
-- Pertahankan relasi `Category hasMany Medicine` dan `Medicine belongsTo Category`.
-- Pastikan nama foreign key dan relasi konsisten.
-- Periksa nullable dan constraint sebelum mengubah migration.
-- Jangan mengedit migration yang sudah pernah dijalankan pada database bersama/production sebagai cara memperbaiki skema. Buat migration baru.
+
+- Pertahankan relasi yang sudah digunakan.
+- Periksa nama kolom, tipe data, nullable, dan foreign key sebelum mengubah skema.
+- Gunakan `$fillable` atau `$guarded` secara aman.
+- Jangan mengubah migration lama yang mungkin sudah dijalankan di database bersama/production; buat migration baru.
 - Jangan menjalankan `migrate:fresh`, `db:wipe`, atau perintah destruktif pada database pengguna.
-- Sebelum perubahan skema, jelaskan dampak dan minta persetujuan jika berisiko kehilangan data.
-- Gunakan eager loading seperti `Medicine::with('category')`.
-- Pertimbangkan index database untuk kolom yang sering dicari/filter setelah mengukur kebutuhan.
+- Jangan menghapus atau mengubah data massal tanpa persetujuan.
+- Gunakan transaction ketika beberapa perubahan database harus berhasil sebagai satu kesatuan.
+- Gunakan eager loading ketika menampilkan relasi.
 
-### Validasi contoh
-Gunakan aturan yang sesuai kebutuhan aktual, misalnya:
-- nama obat: required, string, batas panjang wajar.
-- deskripsi: required/string atau nullable sesuai kebutuhan.
-- harga: required, numeric/integer, minimum 0.
-- expired: required, date.
-- category_id: required, exists:categories,id.
-- gambar: nullable, image, format yang diizinkan, ukuran maksimum yang wajar.
+### Validasi
 
-Sesuaikan validasi dengan aturan bisnis dan tipe kolom. Jangan menyalin aturan secara membabi buta.
+Validasi harus sesuai dengan aturan bisnis dan skema aktual. Contoh atribut produk:
+
+- Nama: wajib, string, panjang wajar.
+- Harga: angka valid dan tidak negatif.
+- Deskripsi: nullable atau wajib sesuai kebutuhan.
+- Tanggal kedaluwarsa: tanggal valid jika memang digunakan.
+- Kategori: harus merujuk kategori yang ada.
+- Gambar: file gambar dengan tipe dan ukuran yang diizinkan.
+
+Jangan menyalin contoh aturan tanpa memeriksa kebutuhan dan tipe kolom.
 
 ### Upload gambar
-- Gunakan disk `public` Laravel Storage.
+
+- Validasi tipe dan ukuran file di server.
+- Gunakan Laravel Storage.
+- Jangan memakai nama file asli dari browser sebagai nama penyimpanan.
 - Simpan path file pada database.
-- Tampilkan dengan `Storage::url()` atau helper yang sesuai.
-- Validasi file di server.
-- Jangan percaya nama file dari browser.
-- Jangan menghapus file lama sebelum penyimpanan file baru berhasil.
-- Pastikan instruksi `php artisan storage:link` dicantumkan bila diperlukan.
+- Jangan menghapus file lama sebelum file baru berhasil disimpan.
+- Pertahankan gambar lama jika pengguna tidak mengunggah gambar baru saat edit.
+- Pastikan cara menampilkan URL gambar sesuai disk yang digunakan.
+- Jelaskan kebutuhan `php artisan storage:link` jika menggunakan disk public.
 
-### Authentication dan authorization
-- Gunakan `Auth` Laravel.
+---
+
+## 9. Autentikasi, otorisasi, dan privasi
+
+- Gunakan mekanisme autentikasi Laravel yang sudah ada kecuali ada alasan kuat untuk mengubahnya.
 - Regenerate session setelah login.
-- Logout harus invalidate session dan regenerate token.
-- Gunakan middleware untuk membatasi akses.
-- Cegah privilege escalation.
+- Saat logout, invalidate session dan regenerate CSRF token sesuai praktik Laravel.
+- Password wajib di-hash.
 - Jangan pernah menyimpan password plaintext.
-- Jangan mengirim password atau token ke log.
+- Jangan pernah menampilkan password, token, atau secret pada log maupun halaman.
+- Jangan percaya role yang dikirim dari browser.
+- Pastikan otorisasi diperiksa pada route/controller/policy/middleware di server.
+- Jangan menampilkan data pribadi pelanggan kepada pengguna lain.
+- Jangan commit file `.env`, API key, credential, atau data pelanggan.
+- Jangan membaca, mencetak, atau membagikan nilai rahasia dari `.env`.
 
-## 8. Standar frontend dan aksesibilitas
+---
 
-- Gunakan semantic HTML: `header`, `nav`, `main`, `section`, `footer`, `form`, `label`, `button`.
-- Setiap input harus punya label yang terhubung.
-- Setiap gambar konten harus memiliki alt yang relevan.
-- Gunakan button untuk aksi dan anchor untuk navigasi.
-- Pastikan semua fitur penting dapat digunakan dengan keyboard.
-- Gunakan `aria-label` atau atribut aksesibilitas bila dibutuhkan.
-- Hindari ukuran teks terlalu kecil.
-- Pastikan layout tidak overflow pada layar kecil.
-- Gunakan state visual untuk hover, focus, disabled, loading, success, dan error.
-- Animasi harus singkat dan tidak menghambat interaksi.
-- Jangan memakai alert browser mentah jika pola UI aplikasi sudah menggunakan komponen/alert yang konsisten.
+## 10. Standar frontend dan aksesibilitas
 
-## 9. Kualitas kode dan keamanan
-
+- Gunakan semantic HTML: `header`, `nav`, `main`, `section`, `footer`, `form`, `label`, dan `button`.
+- Setiap input memiliki label yang jelas.
+- Gunakan `button` untuk aksi dan `a` untuk navigasi.
+- Gambar konten memiliki `alt` yang relevan.
+- Pastikan navigasi dan form dapat digunakan dengan keyboard.
+- Gunakan focus state yang terlihat.
+- Pastikan kontras teks memadai.
+- Hindari teks terlalu kecil.
+- Cegah horizontal overflow pada layar kecil.
+- Berikan feedback untuk loading, disabled, success, dan error.
+- Hormati preferensi `prefers-reduced-motion` jika menggunakan animasi.
 - Escape output Blade dengan `{{ }}` secara default.
-- Hindari `{!! !!}` kecuali konten HTML memang tepercaya dan sudah disanitasi.
-- Validasi semua data dari client.
-- Jangan mempercayai harga, role, path file, atau ID relasi yang dikirim client.
-- Lindungi operasi tulis dengan CSRF.
-- Batasi akses berdasarkan role di server.
-- Jangan commit `.env`, credential, API key, atau data pengguna.
-- Jangan menaruh secret di JavaScript frontend.
-- Hindari SQL raw kecuali diperlukan dan gunakan binding parameter.
-- Perhatikan mass assignment.
-- Periksa N+1 query.
-- Jangan menambahkan dependency tanpa alasan.
-- Jangan mengubah konfigurasi production hanya demi mempermudah development.
+- Hindari `{!! !!}` kecuali konten HTML tepercaya dan sudah disanitasi.
 
-## 10. Testing dan verifikasi
+---
 
-Tambahkan atau perbarui test untuk perilaku penting:
-- Guest tidak dapat membuka halaman admin.
-- User biasa tidak dapat mengakses fitur admin.
-- Admin dapat membuka dashboard.
-- Register tidak dapat membuat admin.
-- Login dan logout berjalan benar.
-- Validasi create/update obat.
-- Upload gambar valid dan file tidak valid ditolak.
-- CRUD kategori.
-- Kategori yang masih memiliki obat tidak menyebabkan data obat hilang.
-- Pencarian/filter/pagination katalog.
-- Route DELETE tidak dapat dipicu melalui GET.
+## 11. Aturan kualitas kode
 
-Gunakan database testing terpisah. Jangan menjalankan test yang berpotensi menghapus atau mengubah database development/production pengguna.
+- Ikuti gaya penamaan dan pola yang sudah digunakan repository.
+- Gunakan nama variabel dan method yang jelas.
+- Hindari duplikasi kode.
+- Hindari membuat abstraksi berlebihan untuk fitur sederhana.
+- Jangan menulis query database langsung di Blade.
+- Jangan menaruh seluruh JavaScript di Blade jika lebih tepat berada di `resources/js`.
+- Jangan menambahkan package tanpa alasan yang jelas.
+- Jangan mengubah file yang tidak berhubungan dengan permintaan.
+- Jangan menghapus kode lama sebelum memastikan tidak digunakan.
+- Jangan menutupi error dengan menghapus validasi atau menonaktifkan proteksi.
+- Jangan membuat data contoh seolah-olah data produksi.
 
-Perintah verifikasi yang dapat dipakai setelah memastikan environment aman:
+---
+
+## 12. Cara kerja wajib untuk setiap permintaan
+
+Ikuti alur ini setiap kali menerima tugas.
+
+### A. Pahami permintaan
+
+1. Baca dokumen ini.
+2. Identifikasi hasil yang diminta pengguna.
+3. Periksa file dan implementasi yang berkaitan.
+4. Bedakan fitur yang sudah ada, belum ada, dan baru diminta.
+5. Jika permintaan berpotensi mengubah alur bisnis atau database, jelaskan dampaknya terlebih dahulu.
+
+### B. Rencanakan
+
+Sebelum perubahan yang cukup besar, sampaikan secara singkat:
+- Apa yang akan dikerjakan.
+- File yang kemungkinan diubah.
+- Dampak terhadap fitur lain.
+- Apakah perlu migration atau dependency baru.
+
+Jika permintaan kecil dan jelas, tidak perlu membuat laporan panjang.
+
+### C. Implementasikan
+
+- Kerjakan hanya ruang lingkup yang diminta.
+- Lakukan perubahan sekecil mungkin tetapi tetap berkualitas.
+- Pertahankan fitur yang sudah berjalan.
+- Jangan menambah fitur tambahan hanya karena terlihat menarik.
+- Jangan mengubah identitas website dari apotek menjadi produk lain.
+- Jangan mengganti stack.
+- Jika ada informasi bisnis yang belum diketahui, jangan mengarangnya.
+
+### D. Verifikasi
+
+Setelah coding:
+- Periksa ulang seluruh file yang berubah.
+- Periksa route yang terdampak.
+- Periksa validasi dan otorisasi.
+- Periksa tampilan mobile dan desktop jika memungkinkan.
+- Jalankan test yang relevan.
+- Jalankan build frontend jika asset berubah.
+- Jangan mengklaim sesuatu berhasil jika belum diuji.
+
+Perintah yang dapat digunakan setelah memastikan environment aman:
+
 ```bash
 php artisan route:list
 php artisan test
 npm run build
 ```
 
-Jika environment belum siap atau dependency belum terpasang, jelaskan kondisi tersebut. Jangan mengklaim test lulus tanpa menjalankannya.
+Jangan menjalankan test yang berpotensi menghapus atau mengubah database development/production. Gunakan database testing terpisah.
 
-## 11. Cara Claude mengerjakan permintaan
+### E. Laporkan hasil
 
-Untuk setiap permintaan fitur:
-1. Jelaskan singkat pemahaman kebutuhan.
-2. Periksa file yang terkait.
-3. Buat daftar file yang akan diubah.
-4. Implementasikan dengan perubahan sekecil mungkin.
-5. Periksa konsistensi route, controller, model, migration, dan view.
-6. Jalankan test/build yang relevan.
-7. Berikan ringkasan:
-   - Fitur yang dibuat/diperbaiki.
-   - File yang diubah.
-   - Perubahan database, jika ada.
-   - Cara mencoba fitur.
-   - Test yang dijalankan dan hasilnya.
-   - Catatan atau pekerjaan yang belum selesai.
+Setiap penyelesaian tugas harus menyebutkan:
+1. Fitur/perbaikan yang dilakukan.
+2. File yang diubah.
+3. Perubahan database atau dependency, jika ada.
+4. Cara mencoba hasilnya.
+5. Test yang dijalankan beserta hasilnya.
+6. Hal yang belum selesai atau belum dapat diverifikasi.
 
-Jika kebutuhan ambigu, tanyakan satu pertanyaan yang paling penting sebelum melakukan perubahan besar.
+---
 
-Jangan mengerjakan semua prioritas sekaligus. Pilih tahap sesuai instruksi pengguna dan jaga aplikasi tetap dapat dijalankan setelah setiap tahap.
+## 13. Larangan penting
 
-## 12. Prompt awal yang disarankan untuk Claude Code
+Claude Code **tidak boleh** melakukan hal berikut tanpa persetujuan eksplisit:
 
-Setelah membaca `CLAUDE.md`, lakukan audit repository terlebih dahulu. Jangan langsung mengubah kode.
+- Mengganti framework atau stack utama.
+- Menghapus tabel, kolom, model, route, atau fitur yang sudah ada.
+- Menjalankan migration destruktif atau menghapus data.
+- Mengubah role banyak pengguna.
+- Menghapus seluruh produk yang terhubung ke kategori.
+- Mengintegrasikan pembayaran, kurir, atau layanan pihak ketiga.
+- Mengarang informasi apotek atau informasi medis.
+- Menambahkan fitur besar di luar permintaan.
+- Mengubah seluruh desain website sekaligus.
+- Mengklaim fitur sudah siap produksi hanya karena halaman berhasil ditampilkan.
 
-Buat laporan:
-1. Kondisi arsitektur saat ini.
-2. Fitur yang sudah berfungsi dan yang belum.
-3. Bug, risiko keamanan, dan masalah UX yang ditemukan.
-4. Rencana pengembangan bertahap berdasarkan Prioritas 0–6.
-5. File yang kemungkinan perlu diubah pada tahap pertama.
+---
 
-Setelah laporan, tunggu persetujuan sebelum melakukan perubahan besar atau migration database.
+## 14. Prompt awal untuk memulai pekerjaan
+
+Jika pengguna meminta memperbagus website secara keseluruhan, jangan langsung mengubah semua file. Mulai dengan audit dan rekomendasi.
+
+Gunakan urutan berikut:
+
+1. Baca `CLAUDE.md`.
+2. Audit struktur dan kondisi website.
+3. Jalankan aplikasi jika environment memungkinkan.
+4. Identifikasi masalah tampilan, responsivitas, alur pelanggan, keamanan, dan fungsi.
+5. Buat daftar prioritas berdasarkan dampak terhadap pelanggan.
+6. Tampilkan rencana pengerjaan bertahap.
+7. Mulai implementasi hanya setelah ruang lingkup tahap pertama jelas.
+
+**Target akhir:** website apotek yang dapat dipahami masyarakat umum, nyaman digunakan di ponsel maupun desktop, memiliki informasi produk yang jelas, serta menyediakan area admin yang aman dan mudah dikelola. Semua fitur harus nyata, konsisten, dan dapat diverifikasi.

@@ -9,3 +9,115 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* ------------------------------------------------------------------
+ | Dasar
+ | Warna utama: emerald (hijau farmasi). Netral: slate.
+ | Status: success=emerald, warning=amber, danger=red, info=sky.
+ |------------------------------------------------------------------*/
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply bg-slate-50 text-slate-800 antialiased;
+    }
+
+    :focus-visible {
+        @apply outline-2 outline-offset-2 outline-emerald-600;
+    }
+}
+
+/* ------------------------------------------------------------------
+ | Komponen UI yang distandarkan
+ |------------------------------------------------------------------*/
+@layer components {
+    /* Tombol */
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50;
+    }
+    .btn-primary {
+        @apply bg-emerald-600 text-white shadow-sm hover:bg-emerald-700;
+    }
+    .btn-secondary {
+        @apply border border-slate-300 bg-white text-slate-700 hover:bg-slate-50;
+    }
+    .btn-danger {
+        @apply bg-red-600 text-white shadow-sm hover:bg-red-700;
+    }
+    .btn-ghost {
+        @apply text-slate-600 hover:bg-slate-100 hover:text-slate-900;
+    }
+    .btn-sm {
+        @apply px-3 py-1.5 text-xs;
+    }
+
+    /* Form */
+    .label {
+        @apply mb-1.5 block text-sm font-medium text-slate-700;
+    }
+    .input {
+        @apply block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 focus:outline-none;
+    }
+    .input-invalid {
+        @apply border-red-500 focus:border-red-500 focus:ring-red-500;
+    }
+    .field-error {
+        @apply mt-1.5 text-sm text-red-600;
+    }
+    .field-hint {
+        @apply mt-1.5 text-xs text-slate-500;
+    }
+
+    /* Kartu & panel */
+    .card {
+        @apply rounded-2xl border border-slate-200 bg-white shadow-sm;
+    }
+
+    /* Badge status */
+    .badge {
+        @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;
+    }
+    .badge-success {
+        @apply bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20 ring-inset;
+    }
+    .badge-warning {
+        @apply bg-amber-50 text-amber-700 ring-1 ring-amber-600/20 ring-inset;
+    }
+    .badge-danger {
+        @apply bg-red-50 text-red-700 ring-1 ring-red-600/20 ring-inset;
+    }
+    .badge-info {
+        @apply bg-sky-50 text-sky-700 ring-1 ring-sky-600/20 ring-inset;
+    }
+    .badge-neutral {
+        @apply bg-slate-100 text-slate-700 ring-1 ring-slate-500/10 ring-inset;
+    }
+
+    /* Tabel */
+    .table {
+        @apply w-full text-left text-sm;
+    }
+    .table thead {
+        @apply bg-slate-50 text-xs font-semibold tracking-wide text-slate-500 uppercase;
+    }
+    .table th,
+    .table td {
+        @apply px-4 py-3 align-middle;
+    }
+    .table tbody tr {
+        @apply border-t border-slate-100 hover:bg-slate-50/60;
+    }
+
+    /* Alert */
+    .alert {
+        @apply flex items-start gap-3 rounded-xl border px-4 py-3 text-sm;
+    }
+    .alert-success {
+        @apply border-emerald-200 bg-emerald-50 text-emerald-800;
+    }
+    .alert-danger {
+        @apply border-red-200 bg-red-50 text-red-800;
+    }
+}

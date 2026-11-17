@@ -1,73 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Login</title>
-    @vite('resources/css/app.css')
-</head>
-<body class="items-center flex justify-center min-h-screen">
+@extends('layouts.app')
 
-  
+@section('title', 'Masuk')
 
-    <form
-  action="/login/action"
-  method="POST"
-  class="mx-auto max-w-md w-full space-y-4 rounded-lg border border-gray-300 bg-gray-100 p-6"
->
-@csrf
-  <div>
-    <label class="block text-sm font-medium text-gray-900" for="email">Email</label>
+@section('content')
+    <div class="mx-auto flex max-w-md flex-col px-4 py-14 sm:px-6">
+        <div class="card p-6 sm:p-8">
+            <h1 class="text-2xl font-bold text-slate-900">Masuk ke akun</h1>
+            <p class="mt-1 text-sm text-slate-500">Belum punya akun? <a href="{{ route('register') }}" class="font-semibold text-emerald-700 hover:underline">Daftar</a></p>
 
-    <input 
-      class="mt-1 w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:outline-none"
-      id="email"
-      type="email"
-      name="email"
-      placeholder="Your email"
-    />
-  </div>
-
-  
-  <div>
-    <label class="block text-sm font-medium text-gray-900" for="password">password</label>
-
-    <input
-      class="mt-1 w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:outline-none"
-      id="password"
-      type="password"
-      name="password"
-      placeholder="Your password"
-    />
-  </div>
-
-  @if ($errors->any())
-      <span class="text-red-500">
-          @foreach ($errors->all() as $item)
-              {{ $item }}
-          @endforeach
-      </span>
-  @endif
-
-  <button
-    class="block w-full rounded-lg border border-indigo-600 bg-indigo-600 px-12 py-3 text-sm font-medium text-white transition-colors hover:bg-transparent hover:text-indigo-600"
-    type="submit"
-  >
-    Send Message
-  </button>
-</form>
-
-
- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @if ( session('gagal'))
-        <script>
-    Swal.fire({
-        title: "Gagal",
-        text: @json( session('gagal') ),
-         icon: "error"
-      });
-        </script>
-  @endif  
-</body>
-</html>
+            <form action="{{ route('login.action') }}" method="POST" class="mt-6 space-y-5" novalidate>
+                @csrf
+                <div>
+                    <label for="email" class="label">Email</label>
+                    <input id="email" type="email" name="email" value="{{ old('email') }}" autocomplete="email" required autofocus
+                           class="input @error('email') input-invalid @enderror" aria-describedby="email-error" @error('email') aria-invalid="true" @enderror>
+                    @error('email') <p id="email-error" class="field-error">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label for="password" class="label">Kata sandi</label>
+                    <input id="password" type="password" name="password" autocomplete="current-password" required
+                           class="input @error('password') input-invalid @enderror" @error('password') aria-invalid="true" @enderror>
+                    @error('password') <p class="field-error">{{ $message }}</p> @enderror
+                </div>
+                <label class="flex items-center gap-2 text-sm text-slate-600">
+                    <input type="checkbox" name="remember" value="1" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-600"> Ingat saya
+                </label>
+                <button type="submit" class="btn btn-primary w-full">Masuk</button>
+            </form>
+        </div>
+    </div>
+@endsection

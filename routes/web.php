@@ -1,47 +1,66 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\MedicineController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\FirstController;
-use App\Http\Controllers\MedicineController;
+use App\Models\Medicine;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/',[FirstController::class, 'halamanUser']);
+/*
+|--------------------------------------------------------------------------
+| Halaman publik
+|--------------------------------------------------------------------------
+*/
+Route::get('/', [FirstController::class, 'home'])->name('home');
+Route::get('/about', [FirstController::class, 'about'])->name('about');
 
-Route::get('/page2', 
-function(){
-    return view('page2');
-}
-);
-  
-Route::get('/about',
-    [FirstController::class, 'index']
-);
+Route::get('/katalog', [CatalogController::class, 'index'])->name('catalog.index');
+Route::get('/katalog/{medicine}', [CatalogController::class, 'show'])->name('catalog.show');
 
-Route::middleware('auth')->group(function (){
-
-    Route::get('/obat', [MedicineController::class , 'index']);
-    Route::get('/obat/create', [MedicineController::class , 'create']);
-    Route::post('/obat/store', [MedicineController::class , 'store']); 
-    Route::get('/obat/{id}',[MedicineController::class, 'show']);
-    Route::get('/obat/delete/{id}',[MedicineController::class, 'destroy']);
-    Route::get('/obat/edit/{id}',[MedicineController::class, 'edit']);
-    Route::put('/obat/update/{id}',[MedicineController::class, 'update']);
-
-    // ROUTE CATEGORY
-    Route::get('/category', [CategoryController::class, 'index']);
-    Route::get('/category/create', [CategoryController::class, 'create']);
-    Route::post('/category/store', [CategoryController::class, 'store']);
-    Route::delete('/category/delete/{id}',[CategoryController::class, 'destroy']);
-    });
-
-
-// Authentication route
-Route::middleware('guest')->group( function(){
-        Route::get('/register',[AuthController::class, 'register']);
-        Route::post('/register/action',[AuthController::class, 'registerAction']);
-        Route::get('/login',[AuthController::class, 'login'] )->name('login');
-        Route::post('/login/action',[AuthController::class, 'loginAction']);
+/*
+|--------------------------------------------------------------------------
+| Autentikasi
+|--------------------------------------------------------------------------
+*/
+Route::middleware('guest')->group(function () {
+    Route::get('/register', [AuthController::class, 'register'])->name('register');
+    Route::post('/register/action', [AuthController::class, 'registerAction'])->name('register.action');
+    Route::get('/login', [AuthController::class, 'login'])->name('login');
+    Route::post('/login/action', [AuthController::class, 'loginAction'])
+        ->middleware('throttle:10,1')
+        ->name('login.action');
 });
 
-Route::post('/logout', [AuthController::class, 'logout']);
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
+
+/*
+|--------------------------------------------------------------------------
+| Admin (wajib login + role admin)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::resource('obat', MedicineController::class)
+        ->parameters(['obat' => 'medicine'])
+        ->names('medicines')
+        ->except('show');
+
+    Route::resource('kategori', CategoryController::class)
+        ->parameters(['kategori' => 'category'])
+        ->names('categories')
+        ->except('show');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Kompatibilitas URL lama
+|--------------------------------------------------------------------------
+*/
+Route::redirect('/obat', '/admin/obat');
+Route::redirect('/category', '/admin/kategori');
+Route::get('/obat/{medicine}', fn (Medicine $medicine) => redirect()->route('catalog.show', $medicine))
+    ->whereNumber('medicine');

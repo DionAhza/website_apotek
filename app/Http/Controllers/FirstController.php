@@ -2,69 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Medicine;
-use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class FirstController extends Controller
 {
-    
-    public function index()
+    public function home(): View
     {
-        $nama = "Bagas Nasution";
-        return view('about', compact('nama'));
+        return view('index', [
+            'latestMedicines' => Medicine::with('category')->latest('id')->take(6)->get(),
+            'categories' => Category::withCount('medicines')->orderBy('name')->get(),
+            'medicineCount' => Medicine::count(),
+        ]);
     }
 
-    public function halamanUser(){
-        $medicines = Medicine::all();
-        return view('index', compact('medicines'));
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function about(): View
     {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return view('about');
     }
 }
